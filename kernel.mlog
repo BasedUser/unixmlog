@@ -1,0 +1,28 @@
+getlink tgt pc
+jump -1 notEqual runlevel 0
+sensor blktype tgt @type
+jump 7 strictEqual kernlog null
+jump 10 strictEqual memblksize null
+jump 17 strictEqual busblksize null
+jump -1 always runinit andsetrlevelto1
+jump 4 notEqual blktype @message
+set kernlog tgt
+jump 25 always 0 0
+jump 13 notEqual blktype @memory-bank
+set memblksize 512
+set mem pc
+jump 16 notEqual blktype @memory-cell
+set memblksize 64
+set mem pc
+jump 5 always 0 0
+read initmagic tgt 0x3
+jump 25 notEqual initmagic 0x74696e69
+set bus pc
+jump 22 notEqual blktype @memory-bank
+set busblksize 512
+jump 25 notEqual blktype @memory-cell
+set busblksize 64
+jump 25 always 0 0
+op add pc pc 1
+jump 0 lessThan pc @links
+set pc 0
