@@ -11,7 +11,7 @@ busblksize_check:
 blktype_check_1:
     jump memblksize_check notEqual blktype @message
     set kernlog tgt
-    jump pc_increment always 0 0
+    jump next_block always 0 0
 blktype_check_2:
     jump blktype_check_3 notEqual blktype @memory-bank
     set memblksize 512
@@ -24,15 +24,15 @@ autojump:
     jump busblksize_check always 0 0
 init_check:
     read initmagic tgt 0x3
-    jump pc_increment notEqual initmagic 0x74696e69
+    jump next_block notEqual initmagic 0x74696e69
     set bus pc
     jump blktype_check_4 notEqual blktype @memory-bank
     set busblksize 512
 blktype_check_4:
-    jump pc_increment notEqual blktype @memory-cell
+    jump next_block notEqual blktype @memory-cell
     set busblksize 64
-    jump pc_increment always 0 0
-pc_increment:
+    jump next_block always 0 0
+next_block:
     op add pc pc 1
     jump start lessThan pc @links
     set pc 0
