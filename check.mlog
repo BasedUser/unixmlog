@@ -1,2 +1,0 @@
-check_links:
-    jump start strictEqual @links 0
