@@ -1,0 +1,6 @@
+# hello.mlog
+%include hello.mlog
+# hi.mlog
+%i hi.mlog
+# loop.mlog
+%i loop.mlog

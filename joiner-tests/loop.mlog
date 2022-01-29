@@ -1,0 +1,6 @@
+set j 0
+loop2:
+# hello.mlog
+%i hello.mlog
+op add j j 1
+jump loop2 notEqual j 5

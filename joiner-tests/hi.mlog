@@ -1,0 +1,6 @@
+set i 0
+loop
+# loop.mlog:
+%include loop.mlog
+op add i i 1
+jump loop notEqual i 5

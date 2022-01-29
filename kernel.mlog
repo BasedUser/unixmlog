@@ -1,5 +1,4 @@
 start:
-%i check.mlog
     getlink tgt pc
     jump -1 notEqual runlevel 0
     sensor blktype tgt @type
