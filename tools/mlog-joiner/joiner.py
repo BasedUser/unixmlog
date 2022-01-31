@@ -35,19 +35,24 @@ def undefine(k):
     del definitions[k]
 
 def apply(s):
-    result = ""
+    result = []
     for i in s.split(" "):
-        if s in definitions: result += definitions[s]
-        else:                result += s
-        result += " "
-    return result[:-1]
+        if i in definitions: result += [definitions[i]]
+        else:                result += [i]
+    return " ".join(result)
 
 def get_relative(s):
     # bash moment
     # if you use powershell/cmd, use bash, since this is not v1+
     if "/" not in s:
         return "./"
-    return s[:s.rindex("/")+1]
+    result = []
+    for i in s.split("/")[:-1]:
+        if i == "..":
+            result = result[:-1]
+            continue
+        result += [i]
+    return "/".join(result)+"/"
 
 def process_args():
     global src
