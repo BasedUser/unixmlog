@@ -7,18 +7,18 @@
 # a.mlog/b.mlog
 %select a.mlog,b.mlog
 
-%define asb asb
-%ifdef asb
-print asb
+%define abc abc
+%ifdef abc
+print abc
 %else
-print asbn't
+print abcn't
 %endif
 
-%undef asb
-%ifdef asb
-print asb
+%undef abc
+%ifdef abc
+print abc
 %else
-print asbn't
+print abcn't
 %endif
 
 %ifimported a.mlog
