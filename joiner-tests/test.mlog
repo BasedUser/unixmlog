@@ -4,3 +4,23 @@
 %i hi.mlog
 # loop.mlog
 %i loop.mlog
+# a.mlog/b.mlog
+%select a.mlog,b.mlog
+
+%define asb asb
+%ifdef asb
+print asb
+%else
+print asbn't
+%endif
+
+%undef asb
+%ifdef asb
+print asb
+%else
+print asbn't
+%endif
+
+%ifimported a.mlog
+print a-is-imported
+%endif

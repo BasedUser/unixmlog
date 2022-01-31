@@ -1,14 +1,19 @@
-# JOINER.PY V0.1.1
+# JOINER.PY V0.1.2
 
 # script made by code-explorer786
 # purpose: joins mlog code together
 
 # usage (similar to C):
-# %include file (inserts contents of file)
-# %i file (same as %include file)
+# %include file / %i file  : inserts contents of file
+# %select files / %s files : user input to select a file
+# %define NAME VALUE       : define
+# %undef NAME              : undefine
+# %ifdef NAME              : check if defined
+# %ifimported FILENAME     : checks if imported
+
 
 # how to run:
-#    python joiner.py -s src -o dst [-r relative/] [--unsafe/-u]
+#    python joiner.py -s src -o dst [--unsafe/-u]
 
 # TODO:
 # - add more stuff
@@ -19,7 +24,30 @@ included = []
 unsafe = False
 src = ""
 dst = ""
-relative = ""
+definitions = {}
+
+def define(k, v):
+    global definitions
+    definitions[k] = v
+
+def undefine(k):
+    global definitions
+    del definitions[k]
+
+def apply(s):
+    result = ""
+    for i in s.split(" "):
+        if s in definitions: result += definitions[s]
+        else:                result += s
+        result += " "
+    return result[:-1]
+
+def get_relative(s):
+    # bash moment
+    # if you use powershell/cmd, use bash, since this is not v1+
+    if "/" not in s:
+        return "./"
+    return s[:s.rindex("/")+1]
 
 def process_args():
     global src
@@ -43,28 +71,69 @@ def process_args():
             unsafe = True
         i += 1
 
+def include_file(fname):
+    global included
+    if fname in included and not unsafe: return ""
+    included += [fname]
+    return process(fname)
+
 def process(fname):
     global included
+    relative = get_relative(fname)
     with open(fname,"r") as f:
         data = f.read().split("\n")
+    level = 0
+    levels_state = {0:True}
     result = ""
-    for data_element in data:
+    data_index = 0
+    while data_index < len(data):
+        data_element = data[data_index]
         processed = data_element.split(" ")
         # let's respect the python interpreters
         # that doesn't support case statements. :D
-        if processed[0] == "%include":
-            processing = relative+data_element[8:].lstrip()
-            if processing in included and not unsafe: continue
-            result += process(processing)
-            included += [processing]
-        elif processed[0] == "%i":
-            processing = relative+data_element[3:].lstrip()
-            if processing in included and not unsafe: continue
-            result += process(processing)
-            included += [processing]
+        if processed[0] == "%else":
+            levels_state[level] = not levels_state[level]
+            data_index += 1
+            continue
+        elif processed[0] == "%endif":
+            level -= 1
+            data_index += 1
+            continue
+
+        if levels_state[level] == False:
+            data_index += 1
+            continue
+
+        if processed[0] in ["%include","%i"]:
+            processing = relative+data_element[len(processed[0]):].lstrip()
+            result += include_file(processing)
+        elif processed[0] in ["%select","%s"]:
+            processing = data_element[len(processed[0]):].lstrip().rstrip()
+            list_files = [relative+filename.lstrip().rstrip() for filename in processing.split(",") if (filename not in included or unsafe)]
+            if len(list_files) == 0: continue
+            if len(list_files) == 1:
+                result += include_file(processing)
+                continue
+            print("%SELECT REQUEST\nSelect a file using index:")
+            for index in range(len(list_files)): print(index,"|",list_files[index])
+            filename = list_files[int(input("[  ]\b\b\b"))]
+            result += include_file(filename)
+        elif processed[0] == "%define":
+            define(processed[1],processed[2] if len(processed) > 2 else "")
+        elif processed[0] == "%undef":
+            undefine(processed[1])
+        elif processed[0] in ["%ifdef","%ifimported"]:
+            level += 1
+            check = False
+            if processed[0] == "%ifdef":
+                check = processed[1] in definitions
+            elif processed[0] == "%ifimported":
+                check = relative+processed[1] in included
+            levels_state[level] = check 
         else:
             result += data_element
         result += "\n"
+        data_index += 1;
     return result[:-1]
 
 def main():
