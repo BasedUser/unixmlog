@@ -1,7 +1,9 @@
+JOINER_SCRIPT=tools/mlog-joiner/joiner.py
+
 build:
-	python joiner.py -s kernel.mlog -o out/kernel.mlog
+	python $(JOINER_SCRIPT) -s kernel.mlog -o out/kernel.mlog
 
 test:
-	python joiner.py -s joiner-tests/test.mlog -o out/test.mlog
-	python joiner.py -s joiner-tests/test.mlog -o out/test-unsafe.mlog --unsafe
+	python $(JOINER_SCRIPT) -s tools/mlog-joiner/tests/test.mlog -o out/test.mlog
+	python $(JOINER_SCRIPT) -s tools/mlog-joiner/tests/test.mlog -o out/test-unsafe.mlog --unsafe
 
